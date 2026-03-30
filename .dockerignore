@@ -1,0 +1,30 @@
+# Ignore local build artifacts
+target/
+*.jar
+*.war
+
+# Ignore IDE configurations
+.idea/
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore version control
+.git/
+.gitignore
+
+# Ignore local maven wrapper files
+mvnw
+mvnw.cmd
+.mvn/wrapper/maven-wrapper.jar
+
+# Ignore documentation
+HELP.md
+README.md
+docs/
