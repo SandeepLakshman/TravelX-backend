@@ -1,14 +1,27 @@
-# Build stage
-FROM maven:3.8.5-openjdk-17 AS build
+# Build stage using Maven Wrapper
+FROM eclipse-temurin:17-jdk-focal AS build
 WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests
+
+# Copy the pom.xml and maven wrapper first to take advantage of Docker caching
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
+# Download dependencies (this will be cached)
+RUN ./mvnw dependency:go-offline
+
+# Copy the source code and build the application
+COPY src ./src
+RUN ./mvnw clean package -DskipTests
 
 # Run stage
-FROM eclipse-temurin:17-jdk-jammy
+FROM eclipse-temurin:17-jre-focal
 WORKDIR /app
+# Copy the built jar from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 8080
+# Render uses the PORT environment variable
+ENV PORT=8081
+EXPOSE ${PORT}
 
-CMD ["sh", "-c", "java -Dserver.port=$PORT -jar app.jar"]
+# Run the application
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT} -jar app.jar"]
